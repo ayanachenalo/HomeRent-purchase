@@ -1,0 +1,194 @@
+.house-container {
+        display: flex;
+        flex-wrap: wrap; /* Manni yoo baay'ate ofumaan gadi bu'a */
+        gap: 20px;
+        padding: 20px;
+        justify-content: center;
+    }
+    .house-card {
+        width: 300px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        overflow: hidden;
+        background: #fff;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    .media-container {
+        width: 100%;
+        height: 200px;
+        background: #eee;
+    }
+    .media-container img, .media-container video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .card-info { padding: 15px; }
+    .btn-details {
+        display: block;
+        text-align: center;
+        background: #273552;
+        color: white;
+        padding: 10px;
+        text-decoration: none;
+        border-radius: 4px;
+    }
+	.footer-column {
+    padding: 80px 10%; /* Gidduu irraa fageenya dabalataa (10%) ni uuma */
+    display: flex;
+    justify-content: space-between; /* Bakka bu'aa space-around, bal'ina guutuu fayyadama */
+    flex-wrap: wrap;
+    text-align: left;
+    background-color: #222; /* Background gadi fageenya qabu */
+}
+
+.footer-box {
+    flex: 1;
+    min-width: 250px;
+    margin: 40px; /* Wal-irraa fageenya saanduqootaa */
+}
+
+.footer-box h3 {
+    color: #ffc107;
+    border-bottom: 2px solid #ffc107; /* Halluu h3 wajjin wal-simu */
+    padding-bottom: 10px;
+    margin-bottom: 25px; /* Barreeffama jalaa irraa gadi fageessa */
+    font-size: 22px;
+    text-transform: uppercase; /* Akka mata-dureetti bifa kireettii qabaata */
+}
+
+.footer-box p, .footer-box a {
+    font-size: 16px; /* 25px irra 16px-tu footer-f miidhaga */
+    color: #bbb;
+    text-decoration: none;
+    line-height: 2; /* Sarara gidduu bal'ina uuma */
+    transition: 0.3s;
+    display: block; /* Link-onni akka sarara dhuunfaa qabaataniif */
+}
+
+.footer-box a:hover {
+    color: #ffc107; /* Yeroo irra deeman halluu jijjiira */
+    padding-left: 5px; /* Sochi xiqoo uuma */
+}
+
+.social-icons {
+    margin-top: 15px;
+}
+
+.social-icons img {
+    width: 24px;   /* Guddisa ikonii */
+    height: 24px;  /* Hamma ikonii */
+    vertical-align: middle; /* Barreeffama wajjin wal qixxeessuuf */
+    margin-right: 8px;      /* Ikonii fi barreeffama gidduu fageenya uumuuf */
+}
+
+.social-icons a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    margin-bottom: 10px;
+}
+.social-icons a:hover { color: white; }
+.copyright {
+        text-align: center;
+        padding: 20px;
+        background: #111;
+        font-size: 20px;
+        color: #777;
+        margin-top: 30px;
+    }
+
+
+/* --- MESSAGE & NOTIFICATION STYLING --- */
+
+.notification-container { 
+    position: relative; 
+    display: inline-block; 
+    cursor: pointer; 
+}
+
+.message-icon { 
+    font-size: 22px; 
+    margin-right: 15px; 
+    transition: 0.3s;
+}
+
+.message-icon:hover {
+    transform: scale(1.1);
+}
+
+.badge {
+    position: absolute; 
+    top: -5px; 
+    right: 5px;
+    background: #e74c3c; 
+    color: white; 
+    border-radius: 50%;
+    padding: 2px 6px; 
+    font-size: 11px;
+    font-weight: bold;
+    border: 1px solid white;
+}
+
+/* Dropdown kan Scroll godhu fi Bal'ate */
+.inbox-dropdown {
+    display: none; 
+    position: absolute; 
+    right: 0; 
+    top: 40px;
+    width: 320px; /* Bal'ina isaa daballeera */
+    background: white; 
+    border-radius: 8px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.25); 
+    z-index: 1001;
+    max-height: 400px; /* Ol-dheerina isaa */
+    overflow-y: auto;  /* Yoo message-n bayyate scroll akka godhu */
+}
+
+.inbox-header {
+    padding: 12px 15px;
+    background: #f8f9fa;
+    border-bottom: 2px solid #eee;
+    font-weight: bold;
+    font-size: 14px;
+    color: #273552;
+    position: sticky; /* Gubbatti akka hafu */
+    top: 0;
+    z-index: 10;
+}
+
+.inbox-item {
+    display: block; 
+    padding: 12px 15px; 
+    color: #333;
+    text-decoration: none; 
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 13px;
+    line-height: 1.4;
+    transition: background 0.2s;
+}
+
+.inbox-item:hover { 
+    background: #f1f4f8; 
+}
+
+/* Ergaa hin dubbifamneef (status=0) */
+.unread-msg {
+    background-color: #f0f7ff;
+    border-left: 3px solid #3498db;
+}
+
+/* Scrollbar bareechuuf (Chrome/Safari) */
+.inbox-dropdown::-webkit-scrollbar {
+    width: 6px;
+}
+.inbox-dropdown::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 10px;
+}
+
+.show-inbox { 
+    display: block !important; 
+}avaScript'n toggel gochuuf */
+
+	
