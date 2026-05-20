@@ -3,37 +3,57 @@
 require_once 'dbconnect.php';
 
 // 1. Ragaa Search irraa dhufe qabachuu
-// Akka magaalaan duwwaa yoo ta'e hunda fiduuf '%' fayyadamna
-$city = isset($_GET['city']) ? mysqli_real_escape_string($conn, $_GET['city']) : '';
+$city = isset($_GET['city']) ? trim($_GET['city']) : '';
 $price = (isset($_GET['price']) && !empty($_GET['price'])) ? (int)$_GET['price'] : 1000000;
 
-// 2. Query Manneen hunda ykn kan calalame fidu
-// 'Available' kan ta'an qofa fiduun gaariidha
-$sql = "SELECT * FROM houses WHERE city LIKE '%$city%' AND price <= $price AND status = 'Available' ORDER BY id DESC";
-$result = mysqli_query($conn, $sql);
+// Like constraint akka hojjetuuf % asitti daballa
+$city_search = "%" . $city . "%";
+
+// 2. Query Manneen hunda ykn kan calalame fidu (Prepared Statements fayyadamna)
+$sql = "SELECT * FROM houses WHERE city LIKE ? AND price <= ? AND (status = 'Available' OR status = 'available') ORDER BY id DESC";
+$stmt = mysqli_prepare($conn, $sql);
 
 $houses = [];
-if ($result && mysqli_num_rows($result) > 0) {
-    while ($row = mysqli_fetch_assoc($result)) {
-        
-        // Ragaa suuraa fi video table 'houses' keessaa fiduu
-        // Suuraan yoo hin jirre default kaa'un dirqama
-        if (!empty($row['main_image'])) {
-            $row['media_path'] = "uploads/images/" . $row['main_image'];
-            $row['media_type'] = 'image';
-        } 
-        // Yoo suuraan hin jirre garuu videon jiraate (filannoo lammataa)
-        elseif (!empty($row['video_path'])) {
-            $row['media_path'] = "uploads/videos/" . $row['video_path'];
-            $row['media_type'] = 'video';
-        } 
-        // Yoo lamaan hin jirre
-        else {
-            $row['media_path'] = "uploads/images/default.jpg";
-            $row['media_type'] = 'image';
+
+if ($stmt) {
+    // Bind parameters: "si" -> string ($city_search), integer ($price)
+    mysqli_stmt_bind_param($stmt, "si", $city_search, $price);
+    
+    mysqli_stmt_execute($stmt);
+    $result = mysqli_stmt_get_result($stmt);
+
+    if ($result && mysqli_num_rows($result) > 0) {
+        while ($row = mysqli_fetch_assoc($result)) {
+            
+            $main_img = trim($row['main_image'] ?? '');
+            $vid_path = trim($row['video_path'] ?? '');
+
+            // 💡 FIX 1: Suuraadhaaf folder path sirreessuu
+            if (!empty($main_img)) {
+                // Yoo database keessatti kallaattiin maqaa faayilii qofa kuusame ta'e 'uploads/images/' itti dabalna
+                if (strpos($main_img, 'uploads/') === false) {
+                    $row['main_image'] = "uploads/images/" . $main_img;
+                }
+            } else {
+                // Yoo suuraan dhabame default kuusna
+                $row['main_image'] = "uploads/images/default.jpg";
+            }
+
+            // 💡 FIX 2: Viidiyoodhaafis haaluma kanaan addatti check goona (elseif dhiifne)
+            if (!empty($vid_path)) {
+                // Yoo database keessatti 'uploads/' hin jirre ta'e 'uploads/videos/' itti dabalna
+                if (strpos($vid_path, 'uploads/') === false) {
+                    $row['video_path'] = "uploads/videos/" . $vid_path;
+                }
+            } else {
+                $row['video_path'] = NULL;
+            }
+            
+            $houses[] = $row;
         }
-        
-        $houses[] = $row;
     }
+    mysqli_stmt_close($stmt);
+} else {
+    echo "SQL Error: " . mysqli_error($conn);
 }
 ?>

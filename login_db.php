@@ -4,7 +4,8 @@ session_start();
 require_once 'dbconnect.php';
 
 if (isset($_POST['submit'])) {
-    $full_name = mysqli_real_escape_string($conn, $_POST['full_name']);
+    // Prepared Statement waan fayyadamnuuf real_escape_string asirratti nu hin barbaachisu
+    $full_name = trim($_POST['full_name']);
     $password = $_POST['password'];
 
     $sql = "SELECT * FROM users WHERE full_name = ?";
@@ -37,7 +38,8 @@ if (isset($_POST['submit'])) {
             else {
                 // Yoo "Redirect" URL irraa dhufe qabaate (view_details irraa)
                 if (isset($_GET['redirect'])) {
-                    header("Location: " . $_GET['redirect']);
+                    // Nageenya URL eeguuf htmlspecialchars itti daballeera
+                    header("Location: " . htmlspecialchars($_GET['redirect']));
                 } else {
                     header("Location: index.php");
                 }
@@ -45,10 +47,10 @@ if (isset($_POST['submit'])) {
             }
 
         } else {
-            echo "<script>alert('Icctiin (Password) dogoggora!'); window.location.href='login.php';</script>";
+            echo "<script>alert('Incorrect password! Please try again.'); window.location.href='login.php';</script>";
         }
     } else {
-        echo "<script>alert('Maqaan kun hin galmaa\'ne!'); window.location.href='login.php';</script>";
+        echo "<script>alert('This username is not registered!'); window.location.href='login.php';</script>";
     }
 }
 ob_end_flush();

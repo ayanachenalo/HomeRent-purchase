@@ -34,41 +34,65 @@
         border-radius: 4px;
     }
 	.footer-column {
-    padding: 80px 10%; /* Gidduu irraa fageenya dabalataa (10%) ni uuma */
+    padding: 60px 5%; /* Gidduu irraa fageenya madaalawaa */
     display: flex;
-    justify-content: space-between; /* Bakka bu'aa space-around, bal'ina guutuu fayyadama */
+    justify-content: center; /* Saanduqoota gidduutti wal qixxaassee fida */
+    align-items: stretch; /* Box-onni hundi dherina wal qixa akka qabaatan */
     flex-wrap: wrap;
-    text-align: left;
-    background-color: #222; /* Background gadi fageenya qabu */
+    gap: 25px; /* Saanduqoota gidduutti fageenya sirrii uuma */
+    background-color: #1a1e29; /* Background footer guutuu gadi fageenya qabu */
 }
 
 .footer-box {
     flex: 1;
-    min-width: 250px;
-    margin: 40px; /* Wal-irraa fageenya saanduqootaa */
+    min-width: 280px;
+    max-width: 350px; /* Box-onni garmalee akka hin bal'anne daangessa */
+    background-color: #d9dce4; /* Background box dhuunfaa (addaan baasee agarsiisa) */
+    padding: 5px; /* Saanduqa keessaa fageenya barreeffamaa */
+    border-radius: 12px; /* Qarqara saanduqaa ni lallaafisa */
+    border: 1px solid rgba(255, 255, 255, 0.08); /* Border xaxamaa sutil ta'e */
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Gidduu kaasee calaqqee uuma */
+    transition: all 0.3s ease;
+}
+
+/* Yeroo mouse irra kaayan box-ichi ol jedha bareedina dabalataaf */
+.footer-box:hover {
+    transform: translateY(-5px);
+    border-color: #ffc107; /* Border gara halluu warqeetti jijjiirama */
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
 }
 
 .footer-box h3 {
-    color: #ffc107;
-    border-bottom: 2px solid #ffc107; /* Halluu h3 wajjin wal-simu */
-    padding-bottom: 10px;
-    margin-bottom: 25px; /* Barreeffama jalaa irraa gadi fageessa */
-    font-size: 22px;
-    text-transform: uppercase; /* Akka mata-dureetti bifa kireettii qabaata */
+    color: #3307d4;
+    border-bottom: 2px solid #3307d4;
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+    font-size: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px; /* Qubee gidduu xiqqoo fageessa */
 }
 
-.footer-box p, .footer-box a {
-    font-size: 16px; /* 25px irra 16px-tu footer-f miidhaga */
-    color: #bbb;
+.footer-box p {
+    font-size: 18px;
+    color: black; /* Halluu qubee p dubbisuuf bashaasha ta'e */
+    line-height: 1.8;
+    margin: 0 0 15px 0;
+}
+
+.footer-box a {
+    font-size: 18px;
+    color: black; /* Link-onni bifa addaan mul'atu */
     text-decoration: none;
-    line-height: 2; /* Sarara gidduu bal'ina uuma */
+    line-height: 2;
     transition: 0.3s;
-    display: block; /* Link-onni akka sarara dhuunfaa qabaataniif */
+    display: block;
+    margin-bottom: 8px;
 }
 
+/* Yeroo Link irra kaayan */
 .footer-box a:hover {
-    color: #ffc107; /* Yeroo irra deeman halluu jijjiira */
-    padding-left: 5px; /* Sochi xiqoo uuma */
+    color: #ffc107; /* Gara warqeetti jijjiirama */
+    padding-left: 5px; /* Xiqqoo gara mirgaatti siqa link-ichi */
 }
 
 .social-icons {
@@ -189,6 +213,6 @@
 
 .show-inbox { 
     display: block !important; 
-}avaScript'n toggel gochuuf */
+}
 
 	

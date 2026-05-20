@@ -7,16 +7,25 @@ $message_sent = false;
 
 // Feedback galmeessuu
 if (isset($_POST['submit_feedback'])) {
-    $name = mysqli_real_escape_string($conn, $_POST['name']);
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $message = mysqli_real_escape_string($conn, $_POST['message']);
+    $name = trim($_POST['name']);
+    $email = strtolower(trim($_POST['email']));
+    $message = trim($_POST['message']);
 
-    $sql = "INSERT INTO feedback (name, email, message) VALUES ('$name', '$email', '$message')";
+    // SQL Injection ittisuuf Prepared Statements fayyadamna
+    $sql = "INSERT INTO feedback (name, email, message) VALUES (?, ?, ?)";
+    $stmt = mysqli_prepare($conn, $sql);
 
-    if (mysqli_query($conn, $sql)) {
-        $message_sent = true;
+    if ($stmt) {
+        mysqli_stmt_bind_param($stmt, "sss", $name, $email, $message);
+        
+        if (mysqli_stmt_execute($stmt)) {
+            $message_sent = true;
+        } else {
+            echo "Error: " . mysqli_stmt_error($stmt);
+        }
+        mysqli_stmt_close($stmt);
     } else {
-        echo "Dogoggora: " . mysqli_error($conn);
+        echo "SQL Error: " . mysqli_error($conn);
     }
 }
 
@@ -25,7 +34,9 @@ $user_id = $_SESSION['user_id'] ?? 0;
 
 // Role session keessa yoo hin jirre database irraa dubbisi
 if (!isset($_SESSION['role']) && $user_id > 0) {
-    $role_query = "SELECT role FROM users WHERE id = '$user_id'";
+    // ID eegumsa qabu gochuuf integer ta'uu isaa mirkaneessi
+    $user_id_clean = (int)$user_id;
+    $role_query = "SELECT role FROM users WHERE id = '$user_id_clean'";
     $role_res = mysqli_query($conn, $role_query);
     if ($role_res && $u_data = mysqli_fetch_assoc($role_res)) {
         $_SESSION['role'] = $u_data['role'];
@@ -43,7 +54,7 @@ if ($user_role === 'owner') {
 }
 
 // house_id yoo barbaadame qofa (URL irraa)
-$house_id = isset($_GET['id']) ? mysqli_real_escape_string($conn, $_GET['id']) : 0;
+$house_id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 ?>
 
 <!doctype html>
@@ -77,7 +88,6 @@ $house_id = isset($_GET['id']) ? mysqli_real_escape_string($conn, $_GET['id']) :
          <strong>Smart Home Finder</strong>
          <span style="float:right;">
              <div class="nav-wrapper">
-                <!-- Linkii Home kallaattiin role adda baasa -->
                 <a href="<?php echo $home_url; ?>" class="home-link">Home</a>
                 <div class="icon-section">
                     <?php include 'icon.php'; ?>
@@ -90,24 +100,24 @@ $house_id = isset($_GET['id']) ? mysqli_real_escape_string($conn, $_GET['id']) :
     <tr bgcolor="#ECECDE">
       <td class="content-area" style="min-height: 500px; vertical-align: top; padding: 20px;">
           <div class="feedback-container" style="background-color: cadetblue;">
-            <h2>📩 Yaada Kee Nuuf Ergi</h2>
-            <p style="text-align: center; color: #E4EEFF;">Tajaajila keenya fooyyessuuf yaada kee nuuf qoodi.</p>
+            <h2>📩 Send Us Your Feedback</h2>
+            <p style="text-align: center; color: #E4EEFF;">Share your thoughts with us to help improve our service.</p>
 
             <?php if ($message_sent): ?>
                 <div class="success-msg">
-                    Galatoomi! Yaanni kee milkiin nu gaheera.
+                    Thank you! Your feedback has been successfully submitted.
                 </div>
             <?php endif; ?>
 
             <form action="feedback.php" method="POST">
-                <label for="name">Maqaa</label>
-                <input type="text" name="name" id="name" placeholder="Maqaa keessan barreessaa..." required>
+                <label for="name">Name</label>
+                <input type="text" name="name" id="name" placeholder="Enter your name..." required>
 
                 <label for="email">Email</label>
-                <input type="email" name="email" id="email" placeholder="Email keessan..." required>
+                <input type="email" name="email" id="email" placeholder="Enter your email..." required>
 
-                <label for="message">Yaada Kee</label>
-                <textarea name="message" id="message" rows="6" placeholder="Yaada ykn gaaffii qabdu asitti barreessi..." required></textarea>
+                <label for="message">Your Message</label>
+                <textarea name="message" id="message" rows="6" placeholder="Write your feedback or questions here..." required></textarea>
 
                 <button type="submit" name="submit_feedback">Send Feedback</button>
             </form>

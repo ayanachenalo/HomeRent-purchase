@@ -1,35 +1,44 @@
 <?php
+// 1. Session jalqabuu (Kun baay'ee murteessaa dha)
 session_start();
 require_once 'dbconnect.php'; // Kallaattiin database connection saagi
 
-// Nageenyaaf: Admin qofni akka seenu mirkaneessi
-if (!isset($_SESSION['username'])) {
+// Nageenyaaf: Admin ta'uu isaa fi role isaa guutummaatti mirkaneessi
+if (!isset($_SESSION['username']) || $_SESSION['role'] !== 'admin') {
     header("Location: loginadmin.php");
     exit();
 }
 
+// Yaada haquu (DELETE Process) - Prepared Statement fayyadamna
 if (isset($_GET['del_feedback'])) {
-    $id_to_delete = mysqli_real_escape_string($conn, $_GET['del_feedback']);
-    $sql_del = "DELETE FROM feedback WHERE id = '$id_to_delete'";
+    $id_to_delete = (int)$_GET['del_feedback']; // Gara integer cast goona
     
-    if (mysqli_query($conn, $sql_del)) {
-        // Erga haqamee booda fuuluma kanatti deebi'i
-        header("Location: seefedback.php?status=deleted");
-        exit();
+    $sql_del = "DELETE FROM feedback WHERE id = ?";
+    $stmt_del = mysqli_prepare($conn, $sql_del);
+    
+    if ($stmt_del) {
+        mysqli_stmt_bind_param($stmt_del, "i", $id_to_delete);
+        
+        if (mysqli_stmt_execute($stmt_del)) {
+            mysqli_stmt_close($stmt_del);
+            // Erga haqamee booda fuuluma kanatti deebi'i
+            header("Location: seefedback.php?status=deleted");
+            exit();
+        }
+        mysqli_stmt_close($stmt_del);
     }
 }
 
-// Yaada fayyadamtootaa maqaa isaanii waliin fetch gochuuf
-$query = "SELECT f.*, u.full_name, u.email 
-          FROM feedback 
-          JOIN users u ON f.user_id = u.id 
-          ORDER BY f.created_at DESC";
-$query = "SELECT * FROM feedback ORDER BY id DESC";
+/* 💡 BUG FIX: Maqaan column 'user_id' jedhu waan hin jirreef, kallaattiin 
+table feedback irraa ragaa 'name' fi 'email' ni fudhanna. Yoo taableen kee 
+users waliin walitti hidhamuu qaba ta'e, query kana "f.email = u.email" godhi.
+*/
+$query = "SELECT * FROM feedback ORDER BY created_at DESC";
 $result = mysqli_query($conn, $query);
 
 // Yoo query'n sun dogoggore maaliif akka ta'e sitti hima
 if (!$result) {
-    die("Dogoggora SQL: " . mysqli_error($conn));
+    die("Database SQL Error: " . mysqli_error($conn));
 }
 ?>
 
@@ -37,7 +46,7 @@ if (!$result) {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>User Feedback</title>
+    <title>Smart Home Finder - User Feedback</title>
     <style>
         .feedback-card {
             background: white;
@@ -46,6 +55,7 @@ if (!$result) {
             margin-bottom: 15px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             border-left: 5px solid #f39c12;
+            text-align: left;
         }
         .user-info {
             font-weight: bold;
@@ -75,35 +85,41 @@ if (!$result) {
 
 <div style="max-width: 900px; margin: 30px auto; padding: 0 20px;">
     <h2>📩 User Feedbacks</h2>
-    <hr>
+    <hr style="border: 0; height: 1px; background: #ccc; margin-bottom: 20px;">
 
     <?php if(mysqli_num_rows($result) > 0): ?>
         <?php while($row = mysqli_fetch_assoc($result)): ?>
             <div class="feedback-card">
                 <div class="user-info">
-                    <span>👤 <?php echo $row['name']; ?> (<?php echo $row['email']; ?>)</span>
-                    <span class="time">📅 <?php echo date('M d, Y - h:i A', strtotime($row['created_at'])); ?></span>
+                    <?php 
+                    // Column names table feedback keessa jiran gargaaramuuf (Fallback handling)
+                    $display_name = $row['full_name'] ?? $row['name'] ?? 'Guest User';
+                    $display_email = $row['email'] ?? 'No Email';
+                    $created_time = isset($row['created_at']) ? date('M d, Y - h:i A', strtotime($row['created_at'])) : 'Unknown Date';
+                    ?>
+                    <span>👤 <?php echo htmlspecialchars($display_name); ?> (<?php echo htmlspecialchars($display_email); ?>)</span>
+                    <span class="time">📅 <?php echo $created_time; ?></span>
                 </div>
                 <div class="message">
-                    <strong>Yaada:</strong><br>
+                    <strong>Feedback Message:</strong><br>
                     <?php echo nl2br(htmlspecialchars($row['message'])); ?>
                 </div>
-               <div style="margin-top: 10px; text-align: right;">
-    <!-- URL kallaattiin gara fuula kanatti (self) deebi'a -->
-    <a href="?del_feedback=<?php echo $row['id']; ?>" 
-       onclick="return confirm('Yaada kana haquu barbaaddu?')"
-       style="color: #e74c3c; font-size: 13px; text-decoration: none; font-weight: bold;">
-       Delete
-    </a>
-</div>
+                <div style="margin-top: 10px; text-align: right;">
+                    <a href="?del_feedback=<?php echo htmlspecialchars($row['id']); ?>" 
+                       onclick="return confirm('Are you sure you want to delete this feedback?')"
+                       style="color: #e74c3c; font-size: 13px; text-decoration: none; font-weight: bold;">
+                       Delete
+                    </a>
+                </div>
             </div>
         <?php endwhile; ?>
     <?php else: ?>
         <div class="no-data">
-            <h3>Yaanni (Feedback) ammaaf hin jiru.</h3>
+            <h3>No feedback messages found.</h3>
         </div>
     <?php endif; ?>
 </div>
 
 </body>
 </html>
+<?php mysqli_close($conn); ?>

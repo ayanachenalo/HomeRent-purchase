@@ -1,34 +1,45 @@
 <?php
+// 1. Session jalqabuu (Kun baay'ee murteessaa dha)
 session_start();
-include 'dbconnect.php';
+require_once 'dbconnect.php';
 
-// 1. Session check
+// Session check - User-ichi login gochuu isaa mirkaneessi
 if (!isset($_SESSION['user_id'])) {
-    die("Error: Login gochuu qabdu.");
+    die("Error: You must be logged in to send a message.");
 }
 
 if (isset($_POST['receiver_id']) && isset($_POST['message']) && isset($_POST['house_id'])) {
     
-    $me = $_SESSION['user_id'];
-    $them = mysqli_real_escape_string($conn, $_POST['receiver_id']);
-    $h_id = mysqli_real_escape_string($conn, $_POST['house_id']); // ID Manaa
-    $msg = mysqli_real_escape_string($conn, $_POST['message']);
+    // Nageenyaaf: ID-f unka integer fayyadamna
+    $me = (int)$_SESSION['user_id'];
+    $them = (int)$_POST['receiver_id'];
+    $h_id = (int)$_POST['house_id']; // ID Manaa
+    $msg = trim($_POST['message']); // Space duwwaa jalaa haquuf
 
     if (!empty($msg)) {
-        $sql = "INSERT INTO messages (sender_id, receiver_id, house_id, message) 
-                VALUES ('$me', '$them', '$h_id', '$msg')";
+        // SQL Injection guutummaatti ittisuuf Prepared Statement fayyadamna
+        $sql = "INSERT INTO messages (sender_id, receiver_id, house_id, message) VALUES (?, ?, ?, ?)";
+        $stmt = mysqli_prepare($conn, $sql);
         
-        if (mysqli_query($conn, $sql)) {
-            // --- FURMAATA ISA SIRRII ASITTI ---
-            // ID mana sanaa URL irratti dabarsuu qabda
-            header("Location: view_details.php?id=$h_id&status=success");
-            exit();
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, "iiis", $me, $them, $h_id, $msg);
+            
+            if (mysqli_stmt_execute($stmt)) {
+                mysqli_stmt_close($stmt);
+                // --- FURMAATA ISA SIRRII ASITTI ---
+                // ID mana sanaa URL irratti dabarsuu qabda
+                header("Location: view_details.php?id=" . $h_id . "&status=success");
+                exit();
+            } else {
+                echo "Execution Error: " . mysqli_stmt_error($stmt);
+            }
+            mysqli_stmt_close($stmt);
         } else {
-            echo "Dogoggora: " . mysqli_error($conn);
+            echo "SQL Error: " . mysqli_error($conn);
         }
     } else {
         // Ergaan duwwaa yoo ta'e deebisii ID mana sanaa itti kenni
-        header("Location: view_details.php?id=$h_id&status=empty");
+        header("Location: view_details.php?id=" . $h_id . "&status=empty");
         exit();
     }
 } else {
@@ -36,4 +47,6 @@ if (isset($_POST['receiver_id']) && isset($_POST['message']) && isset($_POST['ho
     header("Location: index.php");
     exit();
 }
+
+mysqli_close($conn);
 ?>

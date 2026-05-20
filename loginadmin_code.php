@@ -3,29 +3,47 @@ session_start();
 require_once 'dbconnect.php';
 
 if (isset($_POST['submit'])) {
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
-    $password = mysqli_real_escape_string($conn, $_POST['password']);
+    // Prepared Statement waan fayyadamnuuf real_escape_string nu hin barbaachisu
+    $username = trim($_POST['username']);
+    $password = $_POST['password'];
 
     if (!empty($username) && !empty($password)) {
-        // Table admin jedhamu keessaa barbaaduu
-        $query = mysqli_query($conn, "SELECT * FROM admin WHERE username='$username' AND password='$password'");
+        // Table admin jedhamu keessaa barbaaduu (Prepared Statement fayyadamnee)
+        $sql = "SELECT * FROM admin WHERE username = ?";
+        $stmt = mysqli_prepare($conn, $sql);
         
-        if (mysqli_num_rows($query) > 0) {
-            $row = mysqli_fetch_assoc($query);
+        if ($stmt) {
+            mysqli_stmt_bind_param($stmt, "s", $username);
+            mysqli_stmt_execute($stmt);
+            $result = mysqli_stmt_get_result($stmt);
             
-            // Session set gochuu
-            $_SESSION['username'] = $row['username'];
-            $_SESSION['role'] = 'admin'; // Adminpanel irratti kanaan check goona
-            
-            header('Location: adminpanel.php');
-            exit();
+            if ($row = mysqli_fetch_assoc($result)) {
+                // Password plain-text fi hash ta'e lameeninuu akka hojjetu gochuu
+                if (password_verify($password, $row['password']) || $password === $row['password']) {
+                    
+                    // Session set gochuu
+                    $_SESSION['username'] = $row['username'];
+                    $_SESSION['role'] = 'admin'; // Adminpanel irratti kanaan check goona
+                    
+                    header('Location: adminpanel.php');
+                    exit();
+                } else {
+                    echo "<script>alert('Invalid username or password!'); window.location.href='adminlogin.php';</script>";
+                    exit();
+                }
+            } else {
+                echo "<script>alert('Invalid username or password!'); window.location.href='adminlogin.php';</script>";
+                exit();
+            }
+            mysqli_stmt_close($stmt);
         } else {
-            echo "<script>alert('Username ykn Password dogoggora!'); window.location.href='adminlogin.php';</script>";
+            echo "SQL Statement Error.";
         }
     } else {
-        echo "Maaloo username fi password galchi.";
+        echo "Please enter both username and password.";
     }
 } else {
     header("Location: adminlogin.php");
+    exit();
 }
 ?>

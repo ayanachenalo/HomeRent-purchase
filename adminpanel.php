@@ -1,10 +1,9 @@
-<script src="script.js"></script><script src="script.js"></script>
+<script src="script.js"></script>
 <?php
 session_start();
 require_once 'dbconnect.php';
 
-// Nageenyaaf: Admin ta'uu isaa mirkaneessi
-// $_SESSION['username'] akka jiru check goona
+// Akka jiru check goona (Admin login gochuu isaa mirkaneessuuf)
 if (!isset($_SESSION['username'])) {
     header("Location: loginadmin.php"); // Gara login deebisi
     exit();
@@ -28,9 +27,7 @@ $latest_houses = mysqli_query($conn, "SELECT title, city, price FROM houses ORDE
 <div class="main-content">
     <div class="admin-header">
         <h3>Dashboard</h3>
-        <span>Baga nagaan dhufte, <strong>Admin</strong>
-        
-      </span>
+        <span><strong>Admin</strong></span>
     </div>
 
     <style>
@@ -60,12 +57,12 @@ $latest_houses = mysqli_query($conn, "SELECT title, city, price FROM houses ORDE
     </div>
 
     <div style="margin-top: 40px; background: white; padding: 20px; border-radius: 10px;">
-        <h4>Manneen dhiyoo galmaa'an</h4>
+        <h4>Recently Registered Houses</h4>
         <table width="100%" border="0" cellpadding="10" style="border-collapse: collapse;">
             <tr style="background: #f8f9fa; text-align: left;">
-                <th>Maqaa Manaa</th>
-                <th>Magaalaa</th>
-                <th>Gatii (ETB)</th>
+                <th>House Name</th>
+                <th>City</th>
+                <th>Price (ETB)</th>
             </tr>
             <?php while($row = mysqli_fetch_assoc($latest_houses)): ?>
             <tr style="border-bottom: 1px solid #eee;">

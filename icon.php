@@ -99,6 +99,9 @@ if ($user_id > 0) {
     background-color: #f1f1f1;
     color: #000;
 }
+html {
+    scroll-behavior: smooth;
+}
 
 /* Scrollbar akka bareeduuf */
 .lang-submenu::-webkit-scrollbar { width: 4px; }
@@ -137,7 +140,8 @@ if ($user_id > 0) {
             </div>
             <a href="pro.php">Profile</a>
             <a href="setti.php">Settings</a>
-            <a href="change_password.php">Change Password</a>
+           <a href="#about-us">About Us</a>
+        <a href="#contact-us">Contact Us</a>
             <a href="privacy_policy.php">Privacy Policy</a>
 			<a href="feedback.php">Feedback</a>
 			<!-- Bakka linkii language duraanii kanaan bakka buusi -->
